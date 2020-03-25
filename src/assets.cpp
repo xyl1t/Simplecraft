@@ -46,47 +46,49 @@ void Assets::LoadAssets() {
 	float h2 = (textureHeight / 3.f) * 2 / (float)textureHeight;
 	float h3 = (textureHeight / 3.f) * 3 / (float)textureHeight;
 
+	const int blockVertsSize = sizeof(blockVerts) / sizeof(blockVerts[0]);
+
 	// loading block vertices
-	float vertices[264] = {
+	float vertices[blockVertsSize] = {
 		/* vertices */		   /* normals */		  /* colors */		   /* tex */
 
 		// top face
-		-0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h0, // top left -x -z
-		-0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h1, // bottom left -x +z
-		+0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h1, // bottom right +x +z
-		+0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h0, // top right +x -z
+		-0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h0, 0.0f, // top left -x -z
+		-0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 1.0f, // bottom left -x +z
+		+0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 2.0f, // bottom right +x +z
+		+0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h0, 3.0f, // top right +x -z
 
 		// bottom face									  
-		-0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h2, // top left -x -z
-		-0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h3, // bottom left -x +z
-		+0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h3, // bottom right +x +z
-		+0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h2, // top right +x -z
+		-0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 0.0f, // top left -x -z
+		-0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h3, 1.0f, // bottom left -x +z
+		+0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h3, 2.0f, // bottom right +x +z
+		+0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 3.0f, // top right +x -z
 
 		// left side									  
-		-0.5f, +0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w0, h1, // top left
-		-0.5f, -0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w0, h2, // bottom left
-		-0.5f, -0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h2, // bottom right
-		-0.5f, +0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w1, h1, // top right
+		-0.5f, +0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w0, h1, 0.0f, // top left
+		-0.5f, -0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w0, h2, 1.0f, // bottom left
+		-0.5f, -0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 2.0f, // bottom right
+		-0.5f, +0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 3.0f, // top right
 
 		// front			  							  
-		-0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   0.0f, 0.0f, 0.0f,   w1, h1, // top left
-		-0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   0.0f, 0.0f, 0.0f,   w1, h2, // bottom left
-		+0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   0.0f, 0.0f, 0.0f,   w2, h2, // bottom right
-		+0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   0.0f, 0.0f, 0.0f,   w2, h1, // top right
+		-0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 0.0f, // top left
+		-0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 1.0f, // bottom left
+		+0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 2.0f, // bottom right
+		+0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 3.0f, // top right
 
-		// right side									  
-		+0.5f, +0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h1, // top left
-		+0.5f, -0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w2, h2, // bottom left
-		+0.5f, -0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w3, h2, // bottom right
-		+0.5f, +0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   0.0f, 0.0f, 0.0f,   w3, h1, // top right
+		// right side								 	  
+		+0.5f, +0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 0.0f, // top left
+		+0.5f, -0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 1.0f, // bottom left
+		+0.5f, -0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w3, h2, 2.0f, // bottom right
+		+0.5f, +0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w3, h1, 3.0f, // top right
 
-		// behind			  							  
-		-0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   0.0f, 0.0f, 0.0f,   w3, h1, // top left
-		-0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   0.0f, 0.0f, 0.0f,   w3, h2, // bottom left
-		+0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   0.0f, 0.0f, 0.0f,   w4, h2, // bottom right
-		+0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   0.0f, 0.0f, 0.0f,   w4, h1, // top right
+		// behind			  						 	  
+		-0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w3, h1, 0.0f, // top left
+		-0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w3, h2, 1.0f, // bottom left
+		+0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w4, h2, 2.0f, // bottom right
+		+0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w4, h1, 3.0f, // top right
 	};	
-	std::copy(vertices, vertices + 264, blockVerts);
+	std::copy(vertices, vertices + blockVertsSize, blockVerts);
 
 	int indices[36] = {
 		  0,  1,  2,    0,  2,  3, // top

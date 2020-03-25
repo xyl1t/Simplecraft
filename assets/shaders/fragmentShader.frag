@@ -18,5 +18,5 @@ void main() {
 	if(normal.y < 0)							    
 		FragColor = texture(blockTexture, textureCoords) * 0.60f;
 
-	FragColor += color;
+	FragColor *= color;
 }

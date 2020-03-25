@@ -26,7 +26,7 @@ private:
 	std::map<std::string, uint8_t*> textures;
 	uint8_t* blockTextures[BLOCKS_AMOUNT];
 
-	float blockVerts[264];
+	float blockVerts[288];
 	int blockIndis[36];
 
 public:

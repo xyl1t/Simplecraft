@@ -8,9 +8,9 @@ Assets& Game::assets = Assets::GetInstance();
 
 Game::Game()
 	: alive(false),
-	WORLD_WIDTH(16),
-	WORLD_HEIGHT(24),
-	WORLD_DEPTH(16),
+	WORLD_WIDTH(32),
+	WORLD_HEIGHT(16),
+	WORLD_DEPTH(32),
 	WINDOW_WIDTH(800),
 	WINDOW_HEIGHT(600),
 	world{},
@@ -23,7 +23,7 @@ Game::Game()
 	projection{ glm::mat4(1.0f) },
 	fov(70.0f), 
 	textures { } {
-	camera.Position = glm::vec3(WORLD_WIDTH / 2, camera.Position.y, WORLD_DEPTH / 2);
+	camera.Position = glm::vec3(WORLD_WIDTH / 2, WORLD_HEIGHT / 2 + 2, WORLD_DEPTH / 2);
 }
 Game::~Game() {
 	FreeResources();
@@ -100,10 +100,10 @@ void Game::InitGame() {
 			}
 		}
 	}
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
 	
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
 
 
 	// setup shader
@@ -127,14 +127,16 @@ void Game::InitGame() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, assets.GetBlockIndicesSize(), assets.GetBlockIndices(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(9 * sizeof(float)));
 	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(11 * sizeof(float)));
+	glEnableVertexAttribArray(4);
 
 	glGenTextures(BLOCKS_AMOUNT, textures);
 	for (int i = 0; i < BLOCKS_AMOUNT; i++) {
@@ -286,7 +288,7 @@ void Game::Draw() {
 					(z - 1 >= 0				&& world[x][y][z - 1].GetID() != AIR_BLOCK) &&
 					(x + 1 < WORLD_WIDTH	&& world[x + 1][y][z].GetID() != AIR_BLOCK) &&
 					(y + 1 < WORLD_HEIGHT	&& world[x][y + 1][z].GetID() != AIR_BLOCK) &&
-					(z + 1 < WORLD_DEPTH	&& world[x][y][z + 1].GetID() != AIR_BLOCK)) /*continue*/;
+					(z + 1 < WORLD_DEPTH	&& world[x][y][z + 1].GetID() != AIR_BLOCK)) continue;
 				
 				// position the block in the world
 				model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
