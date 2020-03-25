@@ -1,6 +1,11 @@
 #include "game.hpp"
 #include "block.hpp"
 
+
+#include <imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_opengl3.h>
+
 #include <glad/glad.h>
 #include <iostream>
 #include <algorithm>
@@ -9,11 +14,14 @@ Assets& Game::assets = Assets::GetInstance();
 
 Game::Game()
 	: alive(false),
-	WORLD_WIDTH(32),
+	paused(false),
+	WORLD_WIDTH(64),
 	WORLD_HEIGHT(16),
-	WORLD_DEPTH(32),
+	WORLD_DEPTH(64),
 	WINDOW_WIDTH(800),
 	WINDOW_HEIGHT(600),
+	settings{true, true},
+	fSettings{ 0.5 },
 	world{},
 	VAO(0),
 	VBO(0),
@@ -63,6 +71,18 @@ void Game::InitProgram() {
 	glFrontFace(GL_CCW);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glEnable(GL_BLEND);
+
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	// Setup Platform/Renderer bindings
+	ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+	ImGui_ImplOpenGL3_Init("#version 330 core");
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
 }
 void Game::InitGame() {
 	// load assets
@@ -89,9 +109,11 @@ void Game::InitGame() {
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int z = 0; z < WORLD_DEPTH; z++) {
 
-			int y = (sin((x * z) / 75.f) / 3.f + 0.5f) * 8 + 6;
+			int a = (sin((x * z) / 350.f) / 3.f + 0.5f) * 12 + 3;
+			int b = (cos(x / 3.f) / 2.f + 0.5f) * 5.f;
+			int y = a - b;
 
-			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
+ 			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
 		}
 	}	
 
@@ -234,22 +256,29 @@ void Game::Pause() {
 }
 
 void Game::Update(float deltaTime) {
-	for (int x = 0; x < WORLD_WIDTH; x++) {
-		for (int y = 0; y < WORLD_HEIGHT; y++) {
-			for (int z = 0; z < WORLD_DEPTH; z++) {
-				world[x][y][z].Update();
+
+	if (!paused) {
+		for (int x = 0; x < WORLD_WIDTH; x++) {
+			for (int y = 0; y < WORLD_HEIGHT; y++) {
+				for (int z = 0; z < WORLD_DEPTH; z++) {
+					world[x][y][z].Update();
+				}
 			}
 		}
+
+
+		view = glm::mat4(1.0f);
+		view = glm::rotate(view, (float)M_PI / 8.f, glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, -24.0f, 0.0f));
+		view = glm::rotate(view, (float)M_PI / 2.f, glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::rotate(view, (float)M_PI / 4.f, glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::rotate(view, (sin(SDL_GetTicks() / 1000.f) / 2.0f + 0.5f) * (float)M_PI / 2.f - (float)M_PI / 4.f, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		//std::cout << "fps: " << 1.0f / deltaTime << "\n";
 	}
 
-	view = glm::mat4(1.0f);
-	view = glm::rotate(view, (float)M_PI / 8.f, glm::vec3(1.0f, 0.0f, 0.0f));	
-	view = glm::translate(view, glm::vec3(0.0f, -24.0f, 0.0f));
-	view = glm::rotate(view, (float)M_PI / 2.f, glm::vec3(0.0f, 1.0f, 0.0f));
-	view = glm::rotate(view, (float)M_PI / 4.f, glm::vec3(0.0f, 1.0f, 0.0f));
-	view = glm::rotate(view, (sin(SDL_GetTicks() / 1000.f) / 2.0f + 0.5f) * (float)M_PI/2.f - (float)M_PI/4.f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	std::cout << "fps: " << 1.0f / deltaTime << "\n";
+	shader.setBool("settingsAO", settings[SETTINGS_AO]);
+	shader.setFloat("AOintensity", fSettings[SETTINGS_AO_INTENSITY]);
 }
 void Game::ProccessInput(SDL_Event& windowEvent, float deltaTime) {
 	while (SDL_PollEvent(&windowEvent)) {
@@ -260,8 +289,17 @@ void Game::ProccessInput(SDL_Event& windowEvent, float deltaTime) {
 
 			case SDL_MOUSEMOTION:
 
-				camera.ProcessMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel, true);
+				if(!paused)
+					camera.ProcessMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel, true);
 
+				break;
+
+			case SDL_KEYDOWN:
+				if (windowEvent.key.keysym.sym == SDLK_ESCAPE) {
+					SDL_SetRelativeMouseMode((SDL_bool)paused);
+					SDL_ShowCursor(!paused);
+					paused = !paused;
+				}
 				break;
 		}
 	}
@@ -270,38 +308,41 @@ void Game::ProccessInput(SDL_Event& windowEvent, float deltaTime) {
 	SDL_PumpEvents();
 	keyboard = (uint8_t*)SDL_GetKeyboardState(NULL);
 
-	if (keyboard[SDL_SCANCODE_W]) {
-		// cameraPos += cameraSpeed * vec3(cameraFront.x, 0.0f, cameraFront.z);
-		camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_S]) {
-		camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_A]) {
-		camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_D]) {
-		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_SPACE]) {
-		camera.ProcessKeyboard(Camera_Movement::UP, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_LSHIFT]) {
-		camera.ProcessKeyboard(Camera_Movement::DOWN, deltaTime);
-	}
-	if (keyboard[SDL_SCANCODE_LCTRL]) {
-		camera.MovementSpeed = 7.5f;
-	}
-	else {
-		camera.MovementSpeed = 3.0f;
+	if (!paused) {
+		if (keyboard[SDL_SCANCODE_W]) {
+			// cameraPos += cameraSpeed * vec3(cameraFront.x, 0.0f, cameraFront.z);
+			camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_S]) {
+			camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_A]) {
+			camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_D]) {
+			camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_SPACE]) {
+			camera.ProcessKeyboard(Camera_Movement::UP, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_LSHIFT]) {
+			camera.ProcessKeyboard(Camera_Movement::DOWN, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_LCTRL]) {
+			camera.MovementSpeed = 7.5f;
+		}
+		else {
+			camera.MovementSpeed = 3.0f;
+		}
 	}
 }
 void Game::Draw() {
 
-	shader.setMat4("view", camera.GetViewMatrix());
-
 	glClearColor(0.5f, 0.75f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shader.setMat4("view", camera.GetViewMatrix());
+
 
 	for (int x = 0; x < WORLD_WIDTH - 0; x++) {
 		for (int y = 0; y < WORLD_HEIGHT - 0; y++) {
@@ -322,7 +363,7 @@ void Game::Draw() {
 								ly + y < WORLD_HEIGHT &&
 								lz + z < WORLD_DEPTH) {
 
-								if (lx == 0 && ly == 0 && lz == 0) continue;								
+								if (lx == 0 && ly == 0 && lz == 0) continue;
 
 								neighbors[(lx + 1) + (ly + 1) * 3 + (lz + 1) * 9] = world[lx + x][ly + y][lz + z].GetID() != AIR_BLOCK;
 							}
@@ -334,13 +375,13 @@ void Game::Draw() {
 				}
 
 				// Skip if surrounded by other blocks
-				if ((x - 1 >= 0				&& world[x - 1][y][z].GetID() != AIR_BLOCK) &&
-					(y - 1 >= 0				&& world[x][y - 1][z].GetID() != AIR_BLOCK) &&
-					(z - 1 >= 0				&& world[x][y][z - 1].GetID() != AIR_BLOCK) &&
-					(x + 1 < WORLD_WIDTH	&& world[x + 1][y][z].GetID() != AIR_BLOCK) &&
-					(y + 1 < WORLD_HEIGHT	&& world[x][y + 1][z].GetID() != AIR_BLOCK) &&
-					(z + 1 < WORLD_DEPTH	&& world[x][y][z + 1].GetID() != AIR_BLOCK)) continue;
-				
+				if ((x - 1 >= 0 && world[x - 1][y][z].GetID() != AIR_BLOCK) &&
+					(y - 1 >= 0 && world[x][y - 1][z].GetID() != AIR_BLOCK) &&
+					(z - 1 >= 0 && world[x][y][z - 1].GetID() != AIR_BLOCK) &&
+					(x + 1 < WORLD_WIDTH && world[x + 1][y][z].GetID() != AIR_BLOCK) &&
+					(y + 1 < WORLD_HEIGHT && world[x][y + 1][z].GetID() != AIR_BLOCK) &&
+					(z + 1 < WORLD_DEPTH && world[x][y][z + 1].GetID() != AIR_BLOCK)) continue;
+
 				// position the block in the world
 				model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
 				shader.setMat4("model", model);
@@ -357,8 +398,24 @@ void Game::Draw() {
 			}
 		}
 	}
-}
 
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(window);
+	ImGui::NewFrame();
+	{
+		ImGui::Begin("Log");
+
+		ImGui::Checkbox("Use AO", &settings[SETTINGS_AO]);
+		ImGui::SliderFloat("AO intensity", &fSettings[SETTINGS_AO_INTENSITY], 0.0f, 1.0f);
+		//ImGui::ColorEdit3("clear color", (float*)& clear_color); // Edit 3 floats representing a color
+
+		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+	}
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
 void Game::FreeResources() {
 	// Deallocate world

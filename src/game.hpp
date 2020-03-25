@@ -12,6 +12,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define SETTINGS_AO 0 
+#define SETTINGS_SHADOW 1
+#define SETTINGS_AO_INTENSITY 0
+
+
 class Game {
 private:
 
@@ -30,12 +35,15 @@ private:
 	//Block grass, dirt, cobblestone, sand, water, stone, plank, glowstone;
 	
 	bool alive;
+	bool paused;
 	const int WINDOW_WIDTH;
 	const int WINDOW_HEIGHT;
 	SDL_Window* window;
+	bool settings[2];
+	float fSettings[1];
+
 	SDL_GLContext glContext;
 	Shader shader;
-
 	uint32_t VAO, VBO, EBO;
 	uint32_t textures[BLOCKS_AMOUNT];
 
