@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <iostream>
+#include <algorithm>
 
 Assets& Game::assets = Assets::GetInstance();
 
@@ -76,30 +77,64 @@ void Game::InitGame() {
 		}
 	}
 
-	
-	// Fill world with data
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int y = 0; y < WORLD_HEIGHT; y++) {
 			for (int z = 0; z < WORLD_DEPTH; z++) {
 				// First initialize with air
 				world[x][y][z] = Block(AIR_BLOCK, x, y, z);
+			}
+		}
+	}
 
-				// Fill bottom half of world with grass blocks
-				if (y == WORLD_HEIGHT / 2) {
-					if(rand()%4)
-						world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
-				}
-				if (y < WORLD_HEIGHT / 2) {
-					if (rand() % 100 > 75)
-						world[x][y][z] = Block(DIRT_BLOCK, x, y, z);
-				}
-				if (y < WORLD_HEIGHT / 2-1) {
-					if (rand() % 100 > 35)
-						world[x][y][z] = Block(COBBLESTONE_BLOCK, x, y, z);
+	for (int x = 0; x < WORLD_WIDTH; x++) {
+		for (int z = 0; z < WORLD_DEPTH; z++) {
+
+			int y = (sin((x * z) / 75.f) / 3.f + 0.5f) * 8 + 0;
+
+			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
+		}
+	}	
+
+	for (int x = WORLD_WIDTH - 1; x >= 0; x--) {
+		for (int z = WORLD_DEPTH - 1; z >= 0; z--) {
+			for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
+
+				if (world[x][y][z].GetID() == GRASS_BLOCK) {
+					for (int dy = y - 1; dy >= y - 3; dy--) {
+						world[x][dy][z] = Block(DIRT_BLOCK, x, dy, z);
+					}
+					for (int cy = y - 3; cy >= 0; cy--) {
+						world[x][cy][z] = Block(STONE_BLOCK, x, cy, z);
+					}
+					break;
 				}
 			}
 		}
 	}
+
+	// Fill world with data
+	//for (int x = 0; x < WORLD_WIDTH; x++) {
+	//	for (int y = 0; y < WORLD_HEIGHT; y++) {
+	//		for (int z = 0; z < WORLD_DEPTH; z++) {
+	//			// First initialize with air
+	//			world[x][y][z] = Block(AIR_BLOCK, x, y, z);
+
+	//			// Fill bottom half of world with grass blocks
+	//			if (y == WORLD_HEIGHT / 2) {
+	//				if(rand()%4)
+	//					world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
+	//			}
+	//			if (y < WORLD_HEIGHT / 2) {
+	//				if (rand() % 100 > 75)
+	//					world[x][y][z] = Block(DIRT_BLOCK, x, y, z);
+	//			}
+	//			if (y < WORLD_HEIGHT / 2-1) {
+	//				if (rand() % 100 > 35)
+	//					world[x][y][z] = Block(COBBLESTONE_BLOCK, x, y, z);
+	//			}
+	//		}
+	//	}
+	//}
 	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
 	
 	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
