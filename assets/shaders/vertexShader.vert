@@ -31,47 +31,53 @@ void main() {
 	int z = 2;
 	int index = calcIndex(x, y, z);
 
-	float aoRemoval = 3.f;
+	float aoRemoval = 2f;
+
+	bool top = false, bottom = false, left = false, right = false;
 
 	// top
 	if (aNormal.y > 0) {
-		if(neighbors[calcIndex(0, 2, 1)]) {
+		if(neighbors[calcIndex(0, 2, 1)]) { // left
 			if(aID == 1 || aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			left = true;
 		}
-		if(neighbors[calcIndex(2, 2, 1)]) {
+		if(neighbors[calcIndex(2, 2, 1)]) { // right
 			if(aID == 2 || aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			right = true;
 		}
-		if(neighbors[calcIndex(1, 2, 0)]) {
+		if(neighbors[calcIndex(1, 2, 0)]) { // top
 			if(aID == 0 || aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			top = true;
 		}
-		if(neighbors[calcIndex(1, 2, 2)]) {
+		if(neighbors[calcIndex(1, 2, 2)]) { // bottom
 			if(aID == 1 || aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			bottom = true;
 		}
 		
-		if(neighbors[calcIndex(0, 2, 0)]) {
+		if(neighbors[calcIndex(0, 2, 0)] && !top && !left) { // top left
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
 		}
-		if(neighbors[calcIndex(0, 2, 2)]) {
+		if(neighbors[calcIndex(0, 2, 2)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
 		}
-		if(neighbors[calcIndex(2, 2, 2)]) {
+		if(neighbors[calcIndex(2, 2, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
 		}
-		if(neighbors[calcIndex(2, 2, 0)]) {
+		if(neighbors[calcIndex(2, 2, 0)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}

@@ -21,7 +21,7 @@ Game::Game()
 	model{ glm::mat4(1.0f) },
 	view{ glm::mat4(1.0f) },
 	projection{ glm::mat4(1.0f) },
-	fov(70.0f), 
+	fov(glm::radians(70.0f)), 
 	textures { } {
 	camera.Position = glm::vec3(WORLD_WIDTH / 2, WORLD_HEIGHT / 2 + 2, WORLD_DEPTH / 2);
 }
