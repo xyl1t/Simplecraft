@@ -100,10 +100,22 @@ void Game::InitGame() {
 			}
 		}
 	}
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
 	
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 - 1] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2 - 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 - 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	for (int i = -1; i < 2; i++) {
+		for (int j = -1; j < 2; j++) {
+			world[WORLD_WIDTH / 2 + i][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2 + j] = Block(SAND_BLOCK, 0, 0, 0);
+		}
+	}
 
 
 	// setup shader

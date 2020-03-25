@@ -31,11 +31,49 @@ void main() {
 	int z = 2;
 	int index = calcIndex(x, y, z);
 
+	float aoRemoval = 3.f;
+
 	// top
 	if (aNormal.y > 0) {
 		if(neighbors[calcIndex(0, 2, 1)]) {
 			if(aID == 1 || aID == 0) {
-				color.r = color.b = color.g = 0.5f;
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(2, 2, 1)]) {
+			if(aID == 2 || aID == 3) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(1, 2, 0)]) {
+			if(aID == 0 || aID == 3) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(1, 2, 2)]) {
+			if(aID == 1 || aID == 2) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		
+		if(neighbors[calcIndex(0, 2, 0)]) {
+			if(aID == 0) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(0, 2, 2)]) {
+			if(aID == 1) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(2, 2, 2)]) {
+			if(aID == 2) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+		}
+		if(neighbors[calcIndex(2, 2, 0)]) {
+			if(aID == 3) {
+				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
 		}
 	}
