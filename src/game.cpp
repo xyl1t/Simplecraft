@@ -89,7 +89,7 @@ void Game::InitGame() {
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int z = 0; z < WORLD_DEPTH; z++) {
 
-			int y = (sin((x * z) / 75.f) / 3.f + 0.5f) * 8 + 0;
+			int y = (sin((x * z) / 75.f) / 3.f + 0.5f) * 8 + 6;
 
 			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
 		}
@@ -100,7 +100,7 @@ void Game::InitGame() {
 			for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
 
 				if (world[x][y][z].GetID() == GRASS_BLOCK) {
-					for (int dy = y - 1; dy >= y - 3; dy--) {
+					for (int dy = y - 1; dy >= y - 3 && dy >= 0; dy--) {
 						world[x][dy][z] = Block(DIRT_BLOCK, x, dy, z);
 					}
 					for (int cy = y - 3; cy >= 0; cy--) {
@@ -138,12 +138,16 @@ void Game::InitGame() {
 	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
 	
 	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 - 1] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2 - 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+
 	world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 - 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
 	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 - 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2 - 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 - 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
 
 	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
 	for (int i = -1; i < 2; i++) {

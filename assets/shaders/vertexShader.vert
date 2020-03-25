@@ -31,7 +31,7 @@ void main() {
 	int z = 2;
 	int index = calcIndex(x, y, z);
 
-	float aoRemoval = 3f;
+	float aoRemoval = 2f;
 
 	bool top = false, bottom = false, left = false, right = false;
 
@@ -66,22 +66,34 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(2, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 2, 2)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			} 
+			if(aID == 3 && !neighbors[calcIndex(2, 2, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(2, 2, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 2, 0)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
-		}
+			if(aID == 1 && !neighbors[calcIndex(0, 2, 2)]) 
+{
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}		}
 	}
 
 	top = bottom = left = right = false;
@@ -117,20 +129,32 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 0, 2)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 3 && !neighbors[calcIndex(2, 0, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(2, 0, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(0, 0, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 0, 0)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 	}
@@ -168,20 +192,32 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(0, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 0, 0)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 3 && !neighbors[calcIndex(0, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(0, 0, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 2, 2)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 1 && !neighbors[calcIndex(0, 0, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 	}
@@ -219,20 +255,32 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 0, 0)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(2, 0, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(2, 2, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 2, 2)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 1 && !neighbors[calcIndex(2, 0, 0)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 	}
@@ -270,20 +318,32 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 0, 2)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(2, 0, 2)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 2, 2)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 	}
@@ -321,22 +381,33 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(0, 0, 0)] && !bottom && !left) { // bottom left
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
+			}
+			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
 			}
 		}
 		if(neighbors[calcIndex(2, 0, 0)] && !bottom && !right) { // bottom right
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 		if(neighbors[calcIndex(2, 2, 0)] && !top && !right) { // top right
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r / aoRemoval;
 			}
+			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+				color.r = color.b = color.g += color.r / aoRemoval;
+			}
 		}
 	}
-
 }
