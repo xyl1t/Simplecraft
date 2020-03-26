@@ -15,12 +15,12 @@ Assets& Game::assets = Assets::GetInstance();
 Game::Game()
 	: alive(false),
 	paused(false),
-	WORLD_WIDTH(64),
+	WORLD_WIDTH(48),
 	WORLD_HEIGHT(16),
-	WORLD_DEPTH(64),
+	WORLD_DEPTH(48),
 	WINDOW_WIDTH(800),
 	WINDOW_HEIGHT(600),
-	settings{true, true},
+	settings{true, true, false},
 	fSettings{ 0.5 },
 	world{},
 	VAO(0),
@@ -341,6 +341,13 @@ void Game::Draw() {
 	glClearColor(0.5f, 0.75f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	if (settings[SETTINGS_WIREFRAME]) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
 	shader.setMat4("view", camera.GetViewMatrix());
 
 
@@ -407,6 +414,7 @@ void Game::Draw() {
 
 		ImGui::Checkbox("Use AO", &settings[SETTINGS_AO]);
 		ImGui::SliderFloat("AO intensity", &fSettings[SETTINGS_AO_INTENSITY], 0.0f, 1.0f);
+		ImGui::Checkbox("Draw wireframe", &settings[SETTINGS_WIREFRAME]);
 		//ImGui::ColorEdit3("clear color", (float*)& clear_color); // Edit 3 floats representing a color
 
 		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

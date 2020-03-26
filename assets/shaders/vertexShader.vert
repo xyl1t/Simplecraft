@@ -41,6 +41,7 @@ void main() {
 
 	// top
 	if (aNormal.y > 0) {
+
 		if(neighbors[calcIndex(0, 2, 1)]) { // left
 			if(aID == 1 || aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
@@ -70,7 +71,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(2, 2, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(0, 2, 2)] && !neighbors[calcIndex(2, 2, 2)] && !neighbors[calcIndex(2, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -78,7 +79,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			} 
-			if(aID == 3 && !neighbors[calcIndex(2, 2, 0)]) {
+			if(aID == 3  && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(2, 2, 2)] && !neighbors[calcIndex(2, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -86,7 +87,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)]) {
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(2, 2, 0)] && !neighbors[calcIndex(0, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -94,10 +95,10 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(0, 2, 2)]) 
-{
+			if(aID == 1 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 2, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
-			}		}
+			}		
+		}
 	}
 
 	top = bottom = left = right = false;
@@ -133,7 +134,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 0, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -141,7 +142,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 3 && !neighbors[calcIndex(2, 0, 0)]) {
+			if(aID == 32 && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 0, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -149,7 +150,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(0, 0, 0)]) {
+			if(aID == 02 && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 0, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -157,7 +158,7 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+			if(aID == 12 && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 0, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -196,7 +197,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(0, 0, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(0, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -204,7 +205,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 3 && !neighbors[calcIndex(0, 2, 2)]) {
+			if(aID == 3 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(0, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -212,7 +213,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)]) {
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(0, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -220,7 +221,7 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(0, 0, 0)]) {
+			if(aID == 1 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(0, 0, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -259,7 +260,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(2, 0, 0)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -267,7 +268,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+			if(aID == 3  && !neighbors[calcIndex(2, 2, 0)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -275,7 +276,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(2, 2, 0)]) {
+			if(aID == 0 && !neighbors[calcIndex(2, 2, 0)] && !neighbors[calcIndex(2, 0, 0)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -283,7 +284,7 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(2, 0, 0)]) {
+			if(aID == 1 && !neighbors[calcIndex(2, 2, 0)] && !neighbors[calcIndex(2, 0, 0)] && !neighbors[calcIndex(2, 0, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -322,7 +323,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -330,7 +331,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+			if(aID == 3 && !neighbors[calcIndex(0, 2, 2)] && !neighbors[calcIndex(2, 0, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -338,7 +339,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(0, 2, 2)]) {
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 2)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 2, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -346,7 +347,7 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+			if(aID == 1 && !neighbors[calcIndex(0, 2, 2)] && !neighbors[calcIndex(0, 0, 2)] && !neighbors[calcIndex(2, 0, 2)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -385,7 +386,7 @@ void main() {
 			if(aID == 0) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 2 && !neighbors[calcIndex(2, 0, 2)]) {
+			if(aID == 2 && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(2, 0, 0)] && !neighbors[calcIndex(2, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -393,7 +394,7 @@ void main() {
 			if(aID == 1) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 3 && !neighbors[calcIndex(2, 2, 2)]) {
+			if(aID == 3 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(2, 0, 0)] && !neighbors[calcIndex(2, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -401,7 +402,7 @@ void main() {
 			if(aID == 2) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 0 && !neighbors[calcIndex(0, 2, 2)]) {
+			if(aID == 0 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(2, 2, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}
@@ -409,7 +410,7 @@ void main() {
 			if(aID == 3) {
 				color.r = color.b = color.g -= color.r * AOintensity;
 			}
-			if(aID == 1 && !neighbors[calcIndex(0, 0, 2)]) {
+			if(aID == 1 && !neighbors[calcIndex(0, 2, 0)] && !neighbors[calcIndex(0, 0, 0)] && !neighbors[calcIndex(2, 0, 0)]) {
 				color.r = color.b = color.g += color.r * AOintensity;
 			}
 		}

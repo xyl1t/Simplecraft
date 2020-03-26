@@ -14,6 +14,7 @@
 
 #define SETTINGS_AO 0 
 #define SETTINGS_SHADOW 1
+#define SETTINGS_WIREFRAME 2
 #define SETTINGS_AO_INTENSITY 0
 
 
@@ -39,7 +40,7 @@ private:
 	const int WINDOW_WIDTH;
 	const int WINDOW_HEIGHT;
 	SDL_Window* window;
-	bool settings[2];
+	bool settings[3];
 	float fSettings[1];
 
 	SDL_GLContext glContext;
