@@ -15,9 +15,9 @@ Assets& Game::assets = Assets::GetInstance();
 Game::Game()
 	: alive(false),
 	paused(false),
-	WORLD_WIDTH(48),
-	WORLD_HEIGHT(16),
-	WORLD_DEPTH(48),
+	WORLD_WIDTH(200),
+	WORLD_HEIGHT(32),
+	WORLD_DEPTH(200),
 	WINDOW_WIDTH(800),
 	WINDOW_HEIGHT(600),
 	settings{true, true, false},
@@ -88,96 +88,9 @@ void Game::InitGame() {
 	// load assets
 	Game::assets.LoadAssets();
 
-	// Allocate memory for world
-	world = new Block * *[WORLD_WIDTH];
-	for (int i = 0; i < WORLD_WIDTH; i++) {
-		world[i] = new Block * [WORLD_HEIGHT];
-		for (int j = 0; j < WORLD_HEIGHT; j++) {
-			world[i][j] = new Block[WORLD_DEPTH];
-		}
-	}
-
-	for (int x = 0; x < WORLD_WIDTH; x++) {
-		for (int y = 0; y < WORLD_HEIGHT; y++) {
-			for (int z = 0; z < WORLD_DEPTH; z++) {
-				// First initialize with air
-				world[x][y][z] = Block(AIR_BLOCK, x, y, z);
-			}
-		}
-	}
-
-	for (int x = 0; x < WORLD_WIDTH; x++) {
-		for (int z = 0; z < WORLD_DEPTH; z++) {
-
-			int a = (sin((x * z) / 350.f) / 3.f + 0.5f) * 12 + 3;
-			int b = (cos(x / 3.f) / 2.f + 0.5f) * 5.f;
-			int y = a - b;
-
- 			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
-		}
-	}	
-
-	for (int x = WORLD_WIDTH - 1; x >= 0; x--) {
-		for (int z = WORLD_DEPTH - 1; z >= 0; z--) {
-			for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
-
-				if (world[x][y][z].GetID() == GRASS_BLOCK) {
-					for (int dy = y - 1; dy >= y - 3 && dy >= 0; dy--) {
-						world[x][dy][z] = Block(DIRT_BLOCK, x, dy, z);
-					}
-					for (int cy = y - 3; cy >= 0; cy--) {
-						world[x][cy][z] = Block(STONE_BLOCK, x, cy, z);
-					}
-					break;
-				}
-			}
-		}
-	}
-
-	// Fill world with data
-	//for (int x = 0; x < WORLD_WIDTH; x++) {
-	//	for (int y = 0; y < WORLD_HEIGHT; y++) {
-	//		for (int z = 0; z < WORLD_DEPTH; z++) {
-	//			// First initialize with air
-	//			world[x][y][z] = Block(AIR_BLOCK, x, y, z);
-
-	//			// Fill bottom half of world with grass blocks
-	//			if (y == WORLD_HEIGHT / 2) {
-	//				if(rand()%4)
-	//					world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
-	//			}
-	//			if (y < WORLD_HEIGHT / 2) {
-	//				if (rand() % 100 > 75)
-	//					world[x][y][z] = Block(DIRT_BLOCK, x, y, z);
-	//			}
-	//			if (y < WORLD_HEIGHT / 2-1) {
-	//				if (rand() % 100 > 35)
-	//					world[x][y][z] = Block(COBBLESTONE_BLOCK, x, y, z);
-	//			}
-	//		}
-	//	}
-	//}
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
+	generateWorld();
 	
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-
-	world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 - 1] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2 - 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 - 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-
-	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
-	for (int i = -1; i < 2; i++) {
-		for (int j = -1; j < 2; j++) {
-			world[WORLD_WIDTH / 2 + i][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2 + j] = Block(SAND_BLOCK, 0, 0, 0);
-		}
-	}
-
+	//createBlockTypes();
 
 	// setup shader
 	shader = Shader("assets/shaders/vertexShader.vert", "assets/shaders/fragmentShader.frag"); // TODO: get shader location from assets!
@@ -186,7 +99,7 @@ void Game::InitGame() {
 	// setup projection matrix
 	projection = glm::perspective(fov, WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 500.f);
 	shader.setMat4("projection", projection);
-
+	
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -200,33 +113,127 @@ void Game::InitGame() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, assets.GetBlockIndicesSize(), assets.GetBlockIndices(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(9 * sizeof(float)));
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(11 * sizeof(float)));
-	glEnableVertexAttribArray(4);
 
-	glGenTextures(BLOCKS_AMOUNT, textures);
-	for (int i = 0; i < BLOCKS_AMOUNT; i++) {
-		glBindTexture(GL_TEXTURE_2D, textures[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		int w = assets.GetTextureWidth();
-		int h = assets.GetTextureHeight();
+	glm::vec3* positions = new glm::vec3[WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH];
+	glm::vec3* colors = new glm::vec3[WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH * 24];
+	int* textureIDs = new int[WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH];
+	glm::vec2* textureCoords = new glm::vec2[WORLD_WIDTH * WORLD_HEIGHT * WORLD_DEPTH * 24];
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, assets.GetTextureWidth(), assets.GetTextureHeight(), 0, 
-			GL_RGBA, GL_UNSIGNED_BYTE, assets.GetTexture(i));
-		glGenerateMipmap(GL_TEXTURE_2D);
+
+	int index = 0;
+	for (int i = 0; i < WORLD_WIDTH; i++) {
+		for (int j = 0; j < WORLD_HEIGHT; j++) {
+			for (int k = 0; k < WORLD_DEPTH; k++) {
+				if (world[i][j][k].GetID() == AIR_BLOCK) continue;
+				if ((i - 1 >= 0 && world[i - 1][j][k].GetID() != AIR_BLOCK) &&
+					(j - 1 >= 0 && world[i][j - 1][k].GetID() != AIR_BLOCK) &&
+					(k - 1 >= 0 && world[i][j][k - 1].GetID() != AIR_BLOCK) &&
+					(i + 1 < WORLD_WIDTH && world[i + 1][j][k].GetID() != AIR_BLOCK) &&
+					(j + 1 < WORLD_HEIGHT && world[i][j + 1][k].GetID() != AIR_BLOCK) &&
+					(k + 1 < WORLD_DEPTH && world[i][j][k + 1].GetID() != AIR_BLOCK)) continue;
+
+
+				positions[index] = glm::vec3(i, j, k);
+
+				for (int ti = 0; ti < 24; ti++) {
+					textureCoords[index * 24 + ti] = assets.GetTexturePosition(
+						world[i][j][k].GetID(), ti / 4, ti % 4);
+				}
+
+				//textureCoords[index * 24 + 0] = assets.GetTexturePosition(GRASS_BLOCK, FACE0, 0);
+				//textureCoords[index * 24 + 2] = assets.GetTexturePosition(GRASS_BLOCK, FACE0, 2);
+				//textureCoords[index * 24 + 1] = assets.GetTexturePosition(GRASS_BLOCK, FACE0, 1);
+				//textureCoords[index * 24 + 3] = assets.GetTexturePosition(GRASS_BLOCK, FACE0,  3);
+
+				//textureCoords[index * 24 + 4] = assets.GetTexturePosition(GRASS_BLOCK, FACE1, 0);
+				//textureCoords[index * 24 + 5] = assets.GetTexturePosition(GRASS_BLOCK, FACE1, 1);
+				//textureCoords[index * 24 + 6] = assets.GetTexturePosition(GRASS_BLOCK, FACE1, 2);
+				//textureCoords[index * 24 + 7] = assets.GetTexturePosition(GRASS_BLOCK, FACE1,  3);
+
+				//textureCoords[index * 24 +  8] = assets.GetTexturePosition(GRASS_BLOCK, FACE2, 0);
+				//textureCoords[index * 24 +  9] = assets.GetTexturePosition(GRASS_BLOCK, FACE2, 1);
+				//textureCoords[index * 24 + 10] = assets.GetTexturePosition(GRASS_BLOCK, FACE2, 2);
+				//textureCoords[index * 24 + 11] = assets.GetTexturePosition(GRASS_BLOCK, FACE2, 3);
+
+				//textureCoords[index * 24 + 12] = assets.GetTexturePosition(GRASS_BLOCK, FACE3, 0);
+				//textureCoords[index * 24 + 13] = assets.GetTexturePosition(GRASS_BLOCK, FACE3, 1);
+				//textureCoords[index * 24 + 14] = assets.GetTexturePosition(GRASS_BLOCK, FACE3, 2);
+				//textureCoords[index * 24 + 15] = assets.GetTexturePosition(GRASS_BLOCK, FACE3, 3);
+
+				//textureCoords[index * 24 + 16] = assets.GetTexturePosition(GRASS_BLOCK, FACE4, 0);
+				//textureCoords[index * 24 + 17] = assets.GetTexturePosition(GRASS_BLOCK, FACE4, 1);
+				//textureCoords[index * 24 + 18] = assets.GetTexturePosition(GRASS_BLOCK, FACE4, 2);
+				//textureCoords[index * 24 + 19] = assets.GetTexturePosition(GRASS_BLOCK, FACE4, 3);
+
+				//textureCoords[index * 24 + 20] = assets.GetTexturePosition(GRASS_BLOCK, FACE5, 0);
+				//textureCoords[index * 24 + 21] = assets.GetTexturePosition(GRASS_BLOCK, FACE5, 1);
+				//textureCoords[index * 24 + 22] = assets.GetTexturePosition(GRASS_BLOCK, FACE5, 2);
+				//textureCoords[index * 24 + 23] = assets.GetTexturePosition(GRASS_BLOCK, FACE5, 3);
+
+				index++;
+			}
+		}
 	}
+	drawBlocksAmount = index;
 
+	unsigned int positionsVBO;
+	glGenBuffers(1, &positionsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	glBufferData(GL_ARRAY_BUFFER, drawBlocksAmount * sizeof(glm::vec3), positions, GL_STATIC_DRAW);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribDivisor(3, 1);
+	unsigned int colorsVBO;
+	glGenBuffers(1, &colorsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, colorsVBO);
+	glBufferData(GL_ARRAY_BUFFER, drawBlocksAmount * 24 * sizeof(glm::vec3), colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribDivisor(4, 0);
+	unsigned int textureCoordsVBO;
+	glGenBuffers(1, &textureCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, textureCoordsVBO);
+	glBufferData(GL_ARRAY_BUFFER, drawBlocksAmount * 24 * sizeof(glm::vec2), textureCoords, GL_STATIC_DRAW);
+	glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, 1 * sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(5);
+	glVertexAttribDivisor(5, 0);
+
+	delete[] positions;	
+	delete[] textureCoords;
+	delete[] colors;
+	delete[] textureIDs;
+	
+	glGenTextures(1, &textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, assets.GetAtlasWidth(), assets.GetAtlasHeight(), 0, 
+		GL_RGBA, GL_UNSIGNED_BYTE, assets.GetAtlas());
+
+	//glGenTextures(BLOCKS_AMOUNT, textures);
+	//for (int i = 0; i < BLOCKS_AMOUNT; i++) {
+	//	glBindTexture(GL_TEXTURE_2D, textures[i]);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	//	int w = assets.GetTextureWidth();
+	//	int h = assets.GetTextureHeight();
+
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, assets.GetTextureWidth(), assets.GetTextureHeight(), 0, 
+	//		GL_RGBA, GL_UNSIGNED_BYTE, assets.GetTexture(i));
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//}
 }
 
 
@@ -280,62 +287,6 @@ void Game::Update(float deltaTime) {
 	shader.setBool("settingsAO", settings[SETTINGS_AO]);
 	shader.setFloat("AOintensity", fSettings[SETTINGS_AO_INTENSITY]);
 }
-void Game::ProccessInput(SDL_Event& windowEvent, float deltaTime) {
-	while (SDL_PollEvent(&windowEvent)) {
-		switch (windowEvent.type) {
-			case SDL_QUIT:
-				alive = false;
-				break;
-
-			case SDL_MOUSEMOTION:
-
-				if(!paused)
-					camera.ProcessMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel, true);
-
-				break;
-
-			case SDL_KEYDOWN:
-				if (windowEvent.key.keysym.sym == SDLK_ESCAPE) {
-					SDL_SetRelativeMouseMode((SDL_bool)paused);
-					SDL_ShowCursor(!paused);
-					paused = !paused;
-				}
-				break;
-		}
-	}
-
-	uint8_t* keyboard;
-	SDL_PumpEvents();
-	keyboard = (uint8_t*)SDL_GetKeyboardState(NULL);
-
-	if (!paused) {
-		if (keyboard[SDL_SCANCODE_W]) {
-			// cameraPos += cameraSpeed * vec3(cameraFront.x, 0.0f, cameraFront.z);
-			camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_S]) {
-			camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_A]) {
-			camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_D]) {
-			camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_SPACE]) {
-			camera.ProcessKeyboard(Camera_Movement::UP, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_LSHIFT]) {
-			camera.ProcessKeyboard(Camera_Movement::DOWN, deltaTime);
-		}
-		if (keyboard[SDL_SCANCODE_LCTRL]) {
-			camera.MovementSpeed = 7.5f;
-		}
-		else {
-			camera.MovementSpeed = 3.0f;
-		}
-	}
-}
 void Game::Draw() {
 
 	glClearColor(0.5f, 0.75f, 1.0f, 1.0f);
@@ -349,8 +300,19 @@ void Game::Draw() {
 	}
 
 	shader.setMat4("view", camera.GetViewMatrix());
+	shader.setMat4("projection", projection);
+
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
 
+	//glUniform1iv(glGetUniformLocation(shader.ID, "neighbors"), 27, neighbors);
+
+	glBindVertexArray(VAO);
+	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, drawBlocksAmount);
+
+	/*
 	for (int x = 0; x < WORLD_WIDTH - 0; x++) {
 		for (int y = 0; y < WORLD_HEIGHT - 0; y++) {
 			for (int z = 0; z < WORLD_DEPTH - 0; z++) {
@@ -405,6 +367,7 @@ void Game::Draw() {
 			}
 		}
 	}
+	*/
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(window);
@@ -423,6 +386,158 @@ void Game::Draw() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::ProccessInput(SDL_Event& windowEvent, float deltaTime) {
+	while (SDL_PollEvent(&windowEvent)) {
+		switch (windowEvent.type) {
+		case SDL_QUIT:
+			alive = false;
+			break;
+
+		case SDL_MOUSEMOTION:
+
+			if (!paused)
+				camera.ProcessMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel, true);
+
+			break;
+
+		case SDL_KEYDOWN:
+			if (windowEvent.key.keysym.sym == SDLK_ESCAPE) {
+				SDL_SetRelativeMouseMode((SDL_bool)paused);
+				SDL_ShowCursor(!paused);
+				paused = !paused;
+			}
+			break;
+		}
+	}
+
+	uint8_t* keyboard;
+	SDL_PumpEvents();
+	keyboard = (uint8_t*)SDL_GetKeyboardState(NULL);
+
+	if (!paused) {
+		if (keyboard[SDL_SCANCODE_W]) {
+			// cameraPos += cameraSpeed * vec3(cameraFront.x, 0.0f, cameraFront.z);
+			camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_S]) {
+			camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_A]) {
+			camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_D]) {
+			camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_SPACE]) {
+			camera.ProcessKeyboard(Camera_Movement::UP, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_LSHIFT]) {
+			camera.ProcessKeyboard(Camera_Movement::DOWN, deltaTime);
+		}
+		if (keyboard[SDL_SCANCODE_LCTRL]) {
+			camera.MovementSpeed = 30.f;
+		}
+		else {
+			camera.MovementSpeed = 3.0f;
+		}
+	}
+}
+
+void Game::generateWorld() {
+	// Allocate memory for world
+	world = new Block * *[WORLD_WIDTH];
+	for (int i = 0; i < WORLD_WIDTH; i++) {
+		world[i] = new Block * [WORLD_HEIGHT];
+		for (int j = 0; j < WORLD_HEIGHT; j++) {
+			world[i][j] = new Block[WORLD_DEPTH];
+		}
+	}
+
+	// Initialize everything with air first
+	for (int x = 0; x < WORLD_WIDTH; x++) {
+		for (int y = 0; y < WORLD_HEIGHT; y++) {
+			for (int z = 0; z < WORLD_DEPTH; z++) {
+				// First initialize with air
+				world[x][y][z] = Block(AIR_BLOCK, x, y, z);
+			}
+		}
+	}
+
+	// set grass blocks 
+	for (int x = 0; x < WORLD_WIDTH; x++) {
+		for (int z = 0; z < WORLD_DEPTH; z++) {
+
+			int a = (sin((x * z) / 350.f) / 3.f + 0.5f) * 12 + 3;
+			int b = (cos(x / 3.f) / 2.f + 0.5f) * 5.f;
+			int y = a - b;
+
+			world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
+		}
+	}
+
+	// set dirt and stone below grass
+	for (int x = WORLD_WIDTH - 1; x >= 0; x--) {
+		for (int z = WORLD_DEPTH - 1; z >= 0; z--) {
+			for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
+				if (world[x][y][z].GetID() == GRASS_BLOCK) {
+					for (int dy = y - 1; dy >= y - 3 && dy >= 0; dy--) {
+						world[x][dy][z] = Block(DIRT_BLOCK, x, dy, z);
+					}
+					for (int cy = y - 3; cy >= 0; cy--) {
+						world[x][cy][z] = Block(STONE_BLOCK, x, cy, z);
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	// Fill world with data
+	//for (int x = 0; x < WORLD_WIDTH; x++) {
+	//	for (int y = 0; y < WORLD_HEIGHT; y++) {
+	//		for (int z = 0; z < WORLD_DEPTH; z++) {
+	//			// First initialize with air
+	//			world[x][y][z] = Block(AIR_BLOCK, x, y, z);
+
+	//			// Fill bottom half of world with grass blocks
+	//			if (y == WORLD_HEIGHT / 2) {
+	//				if(rand()%4)
+	//					world[x][y][z] = Block(GRASS_BLOCK, x, y, z);
+	//			}
+	//			if (y < WORLD_HEIGHT / 2) {
+	//				if (rand() % 100 > 75)
+	//					world[x][y][z] = Block(DIRT_BLOCK, x, y, z);
+	//			}
+	//			if (y < WORLD_HEIGHT / 2-1) {
+	//				if (rand() % 100 > 35)
+	//					world[x][y][z] = Block(COBBLESTONE_BLOCK, x, y, z);
+	//			}
+	//		}
+	//	}
+	//}
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2+3][WORLD_DEPTH / 2] = Block(GLOWSTONE_BLOCK, 0,0,0);
+
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+
+	world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 - 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2 + 1] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2 - 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2 + 1][WORLD_HEIGHT / 2 + 3][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 - 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	//world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 3 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+
+	world[WORLD_WIDTH / 2][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2] = Block(SAND_BLOCK, 0, 0, 0);
+	for (int i = -1; i < 2; i++) {
+		for (int j = -1; j < 2; j++) {
+			world[WORLD_WIDTH / 2 + i][WORLD_HEIGHT / 2 + 1][WORLD_DEPTH / 2 + j] = Block(SAND_BLOCK, 0, 0, 0);
+		}
+	}
+
 }
 
 void Game::FreeResources() {

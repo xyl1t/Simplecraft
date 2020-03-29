@@ -3,7 +3,13 @@
 #include <stb/stb_image.h>
 #include <algorithm>
 
-Assets::Assets() : textureWidth(0), textureHeight(0), blockVerts{ }, blockTextures { } { }
+Assets::Assets() 
+	: textureWidth(0), 
+	textureHeight(0),
+	blockFacePositions{ { { } } },
+	blockVerts{ }, 
+	blockTextures{ } { 
+}
 Assets::~Assets() { }
 
 void Assets::LoadAssets() {
@@ -23,6 +29,13 @@ void Assets::LoadAssets() {
 	loadTexture("stone",		"assets/textures/stone.png");
 	loadTexture("plank",		"assets/textures/plank.png");
 	loadTexture("glowstone",	"assets/textures/glowstone.png");
+
+	// load atlas
+	atlasTexture = stbi_load("assets/textures/atlas.png", &atlasWidth, &atlasHeight, &atlasNrChannels, 0);
+	atlasTileWidth = 16;
+	atlasTileHeight = 16;
+
+	// OLD ......
 
 	// loading textures (differnt way of accessing them)
 	blockTextures[AIR_BLOCK] = nullptr;
@@ -50,43 +63,43 @@ void Assets::LoadAssets() {
 
 	// loading block vertices
 	float vertices[blockVertsSize] = {
-		/* vertices */		   /* normals */		  /* colors */		   /* tex */
+		/* vertices */		   /* normals */		 /* id */
 
 		// top face
-		-0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h0, 0.0f, // top left -x -z
-		-0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 1.0f, // bottom left -x +z
-		+0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 2.0f, // bottom right +x +z
-		+0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h0, 3.0f, // top right +x -z
-
-		// bottom face									  
-		-0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 0.0f, // top left -x -z
-		-0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h3, 1.0f, // bottom left -x +z
-		+0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h3, 2.0f, // bottom right +x +z
-		+0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 3.0f, // top right +x -z
-
-		// left side									  
-		-0.5f, +0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w0, h1, 0.0f, // top left
-		-0.5f, -0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w0, h2, 1.0f, // bottom left
-		-0.5f, -0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 2.0f, // bottom right
-		-0.5f, +0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 3.0f, // top right
-
-		// front			  							  
-		-0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w1, h1, 0.0f, // top left
-		-0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w1, h2, 1.0f, // bottom left
-		+0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 2.0f, // bottom right
-		+0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 3.0f, // top right
-
-		// right side								 	  
-		+0.5f, +0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h1, 0.0f, // top left
-		+0.5f, -0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w2, h2, 1.0f, // bottom left
-		+0.5f, -0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w3, h2, 2.0f, // bottom right
-		+0.5f, +0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, 1.0f, 1.0f,   w3, h1, 3.0f, // top right
-
-		// behind			  						 	  
-		-0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w3, h1, 0.0f, // top left
-		-0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w3, h2, 1.0f, // bottom left
-		+0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w4, h2, 2.0f, // bottom right
-		+0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, 1.0f, 1.0f,   w4, h1, 3.0f, // top right
+		-0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   0.0f, // top left -x -z
+		-0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   1.0f, // bottom left -x +z
+		+0.5f, +0.5f, +0.5f,   +0.0f, +1.0f, +0.0f,   2.0f, // bottom right +x +z
+		+0.5f, +0.5f, -0.5f,   +0.0f, +1.0f, +0.0f,   3.0f, // top right +x -z
+													 
+		// bottom face								 
+		-0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   0.0f, // top left -x -z
+		-0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   1.0f, // bottom left -x +z
+		+0.5f, -0.5f, +0.5f,   +0.0f, -1.0f, +0.0f,   2.0f, // bottom right +x +z
+		+0.5f, -0.5f, -0.5f,   +0.0f, -1.0f, +0.0f,   3.0f, // top right +x -z
+													 
+		// left side								 
+		-0.5f, +0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   0.0f, // top left
+		-0.5f, -0.5f, -0.5f,   -1.0f, +0.0f, +0.0f,   1.0f, // bottom left
+		-0.5f, -0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   2.0f, // bottom right
+		-0.5f, +0.5f, +0.5f,   -1.0f, +0.0f, +0.0f,   3.0f, // top right
+													 
+		// front			  						 
+		-0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   0.0f, // top left
+		-0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   1.0f, // bottom left
+		+0.5f, -0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   2.0f, // bottom right
+		+0.5f, +0.5f, +0.5f,   +0.0f, +0.0f, +1.0f,   3.0f, // top right
+													 
+		// right side								 
+		+0.5f, +0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   0.0f, // top left
+		+0.5f, -0.5f, -0.5f,   +1.0f, +0.0f, +0.0f,   1.0f, // bottom left
+		+0.5f, -0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   2.0f, // bottom right
+		+0.5f, +0.5f, +0.5f,   +1.0f, +0.0f, +0.0f,   3.0f, // top right
+													 
+		// behind			  						 
+		-0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   0.0f, // top left
+		-0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   1.0f, // bottom left
+		+0.5f, -0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   2.0f, // bottom right
+		+0.5f, +0.5f, -0.5f,   +0.0f, +0.0f, -1.0f,   3.0f, // top right
 	};	
 	std::copy(vertices, vertices + blockVertsSize, blockVerts);
 
@@ -99,6 +112,289 @@ void Assets::LoadAssets() {
 		 22, 21, 20,   23, 22, 20, // behind
 	};
 	std::copy(indices, indices + 36, blockIndis);
+
+	// TODO: maybe use a loop?
+
+	// Grass texture positions
+	blockFacePositions[AIR_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	blockFacePositions[AIR_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	blockFacePositions[AIR_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	blockFacePositions[AIR_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	blockFacePositions[AIR_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	blockFacePositions[AIR_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 0));
+	blockFacePositions[AIR_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(8 + 0), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 1));
+	blockFacePositions[AIR_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(8 + 1), GetNormalizedSpriteY(3 + 0));
+
+	// Grass texture positions
+	blockFacePositions[GRASS_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[GRASS_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[GRASS_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[GRASS_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[GRASS_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[GRASS_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[GRASS_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(3 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[GRASS_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(3 + 1), GetNormalizedSpriteY(0 + 0));
+
+	// Dirt texture positions
+	blockFacePositions[DIRT_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+																										 
+	blockFacePositions[DIRT_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+																										 
+	blockFacePositions[DIRT_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+																										 
+	blockFacePositions[DIRT_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+																										 
+	blockFacePositions[DIRT_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+																										 
+	blockFacePositions[DIRT_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[DIRT_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[DIRT_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(0 + 0));
+
+	// Cobblestone texture positions
+	blockFacePositions[COBBLESTONE_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[COBBLESTONE_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[COBBLESTONE_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[COBBLESTONE_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[COBBLESTONE_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[COBBLESTONE_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(0 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[COBBLESTONE_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(0 + 1), GetNormalizedSpriteY(1 + 0));
+
+	// Sand texture positions
+	blockFacePositions[SAND_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[SAND_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[SAND_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[SAND_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[SAND_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	blockFacePositions[SAND_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 0));
+	blockFacePositions[SAND_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(2 + 0), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 1));
+	blockFacePositions[SAND_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(2 + 1), GetNormalizedSpriteY(1 + 0));
+
+	// Water texture positions
+	blockFacePositions[WATER_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+
+	blockFacePositions[WATER_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+
+	blockFacePositions[WATER_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+
+	blockFacePositions[WATER_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+
+	blockFacePositions[WATER_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+
+	blockFacePositions[WATER_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 0));
+	blockFacePositions[WATER_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(13 + 0), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 1));
+	blockFacePositions[WATER_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(13 + 1), GetNormalizedSpriteY(12 + 0));
+	
+	// Stone texture positions
+	blockFacePositions[STONE_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[STONE_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[STONE_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[STONE_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[STONE_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[STONE_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[STONE_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(1 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[STONE_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(1 + 1), GetNormalizedSpriteY(0 + 0));
+
+	// Plank texture positions
+	blockFacePositions[PLANK_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[PLANK_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[PLANK_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[PLANK_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[PLANK_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	blockFacePositions[PLANK_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 0));
+	blockFacePositions[PLANK_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(4 + 0), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 1));
+	blockFacePositions[PLANK_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(4 + 1), GetNormalizedSpriteY(0 + 0));
+
+	// Glowstone texture positions
+	blockFacePositions[GLOWSTONE_BLOCK][FACE0][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE0][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE0][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE0][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+	blockFacePositions[GLOWSTONE_BLOCK][FACE1][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE1][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE1][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE1][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+	blockFacePositions[GLOWSTONE_BLOCK][FACE2][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE2][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE2][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE2][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+	blockFacePositions[GLOWSTONE_BLOCK][FACE3][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE3][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE3][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE3][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+	blockFacePositions[GLOWSTONE_BLOCK][FACE4][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE4][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE4][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE4][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+	blockFacePositions[GLOWSTONE_BLOCK][FACE5][0] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 0));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE5][1] = glm::vec2(GetNormalizedSpriteX(9 + 0), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE5][2] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 1));
+	blockFacePositions[GLOWSTONE_BLOCK][FACE5][3] = glm::vec2(GetNormalizedSpriteX(9 + 1), GetNormalizedSpriteY(6 + 0));
+
+
 }
 
 void Assets::UnloadAssets() {

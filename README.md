@@ -4,6 +4,6 @@ It's poorly optimzed and the code is rather bad, but I'm having fun and learning
 
 #### Some images:
 
-![Imgur](https://imgur.com/Zlvu60X.png)
+![Imgur](https://imgur.com/FybrBj4.png)
 ![Imgur](https://imgur.com/KkmyfY8.png)
 test

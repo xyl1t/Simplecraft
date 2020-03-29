@@ -4,6 +4,7 @@
 #include <map>
 #include <cstdint>
 #include <string>
+#include <glm/glm.hpp>
 
 #define BLOCKS_AMOUNT		9
 #define AIR_BLOCK			0
@@ -16,6 +17,14 @@
 #define PLANK_BLOCK			7
 #define GLOWSTONE_BLOCK		8
 
+#define FACES_AMOUNT 6
+#define FACE0	0
+#define FACE1	1
+#define FACE2	2
+#define FACE3	3
+#define FACE4	4
+#define FACE5	5
+
 // Assets is a singleton class
 class Assets {
 private:
@@ -25,8 +34,16 @@ private:
 	int textureWidth, textureHeight;
 	std::map<std::string, uint8_t*> textures;
 	uint8_t* blockTextures[BLOCKS_AMOUNT];
+	uint8_t* atlasTexture;
+	int atlasWidth;
+	int atlasHeight;
+	int atlasTileWidth;
+	int atlasTileHeight;
+	int atlasNrChannels;
 
-	float blockVerts[288];
+	glm::vec2 blockFacePositions[BLOCKS_AMOUNT][FACES_AMOUNT][4];
+
+	float blockVerts[168];
 	int blockIndis[36];
 
 public:
@@ -51,7 +68,6 @@ public:
 	inline int GetTextureHeight() {
 		return textureHeight;
 	}
-
 	inline float* GetBlockVertices() {
 		return blockVerts;
 	}
@@ -64,7 +80,26 @@ public:
 	inline size_t GetBlockIndicesSize() {
 		return sizeof(blockIndis);
 	}
-	
+	inline float GetNormalizedSpriteX(int x) {
+		float val = x / (float)atlasTileWidth;
+		return x / (float)atlasTileWidth;
+	}
+	inline float GetNormalizedSpriteY(int y) {
+		return y / (float)atlasTileHeight;
+	}
+	inline uint8_t* GetAtlas() {
+		return atlasTexture;
+	}
+	inline int GetAtlasWidth() {
+		return atlasWidth;
+	}
+	inline int GetAtlasHeight() {
+		return atlasHeight;
+	}
+	inline glm::vec2 GetTexturePosition(int blockType, int face, int vertex) {
+		return blockFacePositions[blockType][face][vertex];
+	}
+
 	Assets(const Assets& other) = delete;
 	void operator=(const Assets& other) = delete;
 };

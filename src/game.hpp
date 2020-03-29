@@ -33,6 +33,7 @@ private:
 	const int WORLD_HEIGHT;
 	const int WORLD_DEPTH;
 	Block*** world;
+	void generateWorld();
 	//Block grass, dirt, cobblestone, sand, water, stone, plank, glowstone;
 	
 	bool alive;
@@ -46,6 +47,8 @@ private:
 	SDL_GLContext glContext;
 	Shader shader;
 	uint32_t VAO, VBO, EBO;
+	size_t drawBlocksAmount = 0;
+	uint32_t textureAtlas;
 	uint32_t textures[BLOCKS_AMOUNT];
 
 	Camera camera;

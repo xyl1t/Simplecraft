@@ -4,3 +4,4 @@ Release
 *.dll
 *.vcxproj
 *.vcxproj.*
+imgui.ini
